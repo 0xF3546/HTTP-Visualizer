@@ -1,25 +1,75 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import "./App.css";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const [form, setForm] = useState({ url: '' });
+    const [response, setResponse] = useState();
+    const [responseData, setResponseData] = useState();
+    const [request, setRequest] = useState();
+    const [images, setImages] = useState([]);
+
+    const handleChange = (e) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    }
+
+    const pushRequest = async () => {
+      const options = {
+        method: 'GET',
+    };
+
+    const response = await fetch(form.url, options);
+        const data = await response.json();
+        setResponseData(JSON.stringify(data, null, 2));
+        setRequest(`Request:\n\nURL: ${form.url}\nOptions: ${JSON.stringify(options, null, 2)}`);
+
+        let imagesList = [];
+
+        for (let key in data) {
+            if (typeof data[key] === 'string' && (data[key].endsWith('.jpg') || data[key].endsWith('.png'))) {
+                imagesList.push({ key, url: data[key] });
+            }
+        }
+        setResponse(`Response:\n\nok: ${response.ok}\nstatus: ${response.status}\nstatusText: ${response.statusText}\nheaders: ${JSON.stringify(Array.from(response.headers.entries()), null, 2)}`);
+        setImages(imagesList);
+    }
+
+    return (
+        <div className="App">
+            <input
+                value={form.url}
+                placeholder='URL'
+                onChange={handleChange}
+                name='url'
+            />
+            <button onClick={pushRequest}>GET</button>
+            {request && (
+              <>
+                <pre>
+                  {request}
+                </pre>
+              </>
+            )}
+            {response && (
+              <>
+                <pre>
+                  {response}
+                </pre>
+              </>
+            )}
+            {responseData && (
+                <>
+                    <pre>
+                        {responseData}
+                    </pre>
+                    {images.map((image, index) => (
+                        <pre key={index}>
+                            "{image.key}": <img src={image.url} alt={image.key} style={{ width: '100px', height: '100px' }} />
+                        </pre>
+                    ))}
+                </>
+            )}
+        </div>
+    );
 }
 
 export default App;
