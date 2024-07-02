@@ -33,6 +33,13 @@ function App() {
     setImages(imagesList);
   }
 
+  const clear = () => {
+    setResponse(undefined);
+    setResponseData(undefined);
+    setImages(undefined);
+    setRequest(undefined);
+  }
+
   return (
     <div className="App">
       <div className="input-wrapper">
@@ -43,6 +50,9 @@ function App() {
           name='url'
         />
         <button onClick={pushRequest}>GET</button>
+        {(request || response || responseData) && (
+          <button onClick={clear}>Clear</button>
+        )}
       </div>
       {request && (
         <>
